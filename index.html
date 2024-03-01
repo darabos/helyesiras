@@ -3,8 +3,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>J vagy LY</title>
 <style>
-    * {
+    body {
         font-family: sans-serif;
+        text-align: center;
     }
     i {
         display: inline-block;
@@ -17,15 +18,19 @@
     .revealed i {
         visibility: visible;
     }
+    #game {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
     .block {
         background: #dcb;
         font-size: 16px;
         outline: 1px solid #987;
         border-radius: 5px;
-        position: absolute;
-        left: 0; right: 0;
-        margin: auto;
         width: fit-content;
+        margin-bottom: 1px;
         padding: 5px 10px;
         height: 1em;
         transition: 1s transform;
@@ -60,23 +65,28 @@
         color: #987;
         font-weight: bold;
         font-size: 30px;
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
     }
-    .header-left { float: left; }
+    .header-left { float: right; }
     .header-right { float: right; }
-    #score {
+    #score-display {
         color: #987;
         text-align: center;
-        position: absolute;
-        left: 0; right: 0;
         padding: 20px;
         font-size: 20px;
     }
+    .hint {
+        color: #987;
+        font-size: 10px;
+    }
 </style>
 </head><body>
-    <div class="header header-left">J</div>
-    <div class="header header-right">LY</div>
+    <div class="hint">Nyomd a J és L gombokat, vagy húzd jobbra-balra az ujjad.</div>
+    <div class="header"><div>J</div><div>LY</div></div><div>
     <div id="game"></div>
-    <div id="score">0</div>
+    <div id="score-display"><span id="score">0</span> pont</div>
     <button id="restart">ÚJRA</button>
 <script>
 const blocks = [];
@@ -84,15 +94,10 @@ let next = 0;
 let points = 0;
 let loss;
 function start() {
-    let pos = 50;
     for (let i = 0; i < 20; ++i) {
         const b = newBlock();
-        b.style.top = pos + 'px';
-        pos += 27;
-        b.onclick = e => e.target.style.transform='translateX(100px)';
         blocks.push(b);
     }
-    score.style.top = pos + 'px';
 }
 restart.onclick = () => {
     for (const b of blocks) {
@@ -138,7 +143,6 @@ function push(dir) {
         if (next < blocks.length) {
             blocks[next].scrollIntoView({behavior: 'smooth', block: 'nearest'});
         } else {
-            score.style.color = 'black';
             clearInterval(loss);
         }
     } else {
