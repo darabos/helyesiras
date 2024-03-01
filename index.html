@@ -77,6 +77,7 @@
     <div class="header header-right">LY</div>
     <div id="game"></div>
     <div id="score">0</div>
+    <button id="restart">ÚJRA</button>
 <script>
 const blocks = [];
 let next = 0;
@@ -93,6 +94,16 @@ function start() {
     }
     score.style.top = pos + 'px';
 }
+restart.onclick = () => {
+    for (const b of blocks) {
+        b.remove();
+    }
+    blocks.splice(0);
+    next = 0;
+    clearInterval(loss);
+    loss = undefined;
+    start();
+};
 const ly_words = [];
 const j_words = [];
 function newBlock() {
