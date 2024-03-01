@@ -1,0 +1,280 @@
+<!DOCTYPE html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>J vagy LY</title>
+<style>
+    * {
+        font-family: sans-serif;
+    }
+    i {
+        display: inline-block;
+        border-radius: 2px;
+        margin-bottom: -2px;
+        font-style: normal;
+        background: #fff8;
+        visibility: hidden;
+    }
+    .revealed i {
+        visibility: visible;
+    }
+    .block {
+        background: #dcb;
+        font-size: 16px;
+        outline: 1px solid #987;
+        border-radius: 5px;
+        position: absolute;
+        left: 0; right: 0;
+        margin: auto;
+        width: fit-content;
+        padding: 5px 10px;
+        height: 1em;
+        transition: 1s transform;
+    }
+    .block.bounce-right {
+        animation: bounceRight 0.2s;
+    }
+    .block.bounce-left {
+        animation: bounceLeft 0.2s;
+    }
+    @keyframes bounceRight {
+        0%, 100% {
+            transform: translateX(0);
+            animation-timing-function: ease-out;
+        }
+        50% {
+            transform: translateX(-30px);
+            animation-timing-function: ease-in;
+        }
+    }
+    @keyframes bounceLeft {
+        0%, 100% {
+            transform: translateX(0);
+            animation-timing-function: ease-out;
+        }
+        50% {
+            transform: translateX(30px);
+            animation-timing-function: ease-in;
+        }
+    }
+    .header {
+        color: #987;
+        font-weight: bold;
+        font-size: 30px;
+    }
+    .header-left { float: left; }
+    .header-right { float: right; }
+    #score {
+        color: #987;
+        text-align: center;
+        position: absolute;
+        left: 0; right: 0;
+        padding: 20px;
+        font-size: 20px;
+    }
+</style>
+</head><body>
+    <div class="header header-left">J</div>
+    <div class="header header-right">LY</div>
+    <div id="game"></div>
+    <div id="score">0</div>
+<script>
+const blocks = [];
+let next = 0;
+let points = 0;
+let loss;
+function start() {
+    let pos = 50;
+    for (let i = 0; i < 20; ++i) {
+        const b = newBlock();
+        b.style.top = pos + 'px';
+        pos += 27;
+        b.onclick = e => e.target.style.transform='translateX(100px)';
+        blocks.push(b);
+    }
+    score.style.top = pos + 'px';
+}
+const ly_words = [];
+const j_words = [];
+function newBlock() {
+    const div = document.createElement('div');
+    div.classList.add('block');
+    const ly = Math.random() < 0.5;
+    const ws = ly ? ly_words : j_words;
+    if (ws.length === 0) {
+        const WS = ly ? LY_WORDS : J_WORDS
+        ws.push(...WS);
+    }
+    const i = Math.floor(Math.random() * ws.length)
+    const w = ws[i].toUpperCase();
+    ws.splice(i, 1); // Delete w.
+    div.innerHTML = w.replace('LY', '<i>LY</i>').replace('J', '<i>LY</i>');
+    game.appendChild(div);
+    div.dataset.ly = ly.toString();
+    return div;
+}
+function push(dir) {
+    const kly = dir === 'LY';
+    if (next >= blocks.length) return;
+    const b = blocks[next];
+    const ww = b.getBoundingClientRect().width;
+    const bw = game.getBoundingClientRect().width;
+    if (b.dataset.ly === kly.toString()) {
+        b.style.transform = `translateX(${kly?(bw-ww)/2:(ww-bw)/2}px)`;
+        if (!kly) b.innerHTML = b.innerHTML.replace('<i>LY</i>', '<i>J</i>');
+        b.classList.add('revealed');
+        next += 1;
+        points += 10;
+        if (next < blocks.length) {
+            blocks[next].scrollIntoView({behavior: 'smooth', block: 'nearest'});
+        } else {
+            score.style.color = 'black';
+            clearInterval(loss);
+        }
+    } else {
+        const cls = kly ? 'bounce-left' : 'bounce-right';
+        b.classList.remove(cls);
+        b.offsetWidth;
+        b.classList.add(cls);
+        points -= 20;
+    }
+    score.innerHTML = points;
+    if (!loss) {
+        loss = setInterval(lossFunc, 1000);
+    }
+};
+function lossFunc() {
+    points -= 1;
+    score.innerHTML = points;
+}
+document.onkeypress = e => {
+    if (e.code === 'KeyJ') push('J');
+    if (e.code === 'KeyL') push('LY');
+}
+let touchstartX = 0;
+document.ontouchstart = e => {
+    touchstartX = e.changedTouches[0].screenX;
+};
+document.ontouchend = e => {
+  const touchendX = e.changedTouches[0].screenX;
+  const THRESHOLD = 50;
+  if (touchendX < touchstartX - THRESHOLD) push('J');
+  if (touchendX > touchstartX + THRESHOLD) push('LY');
+};
+
+const LY_WORDS = `
+ahelyett
+amely
+amelyik
+amilyen
+bolygó
+bármely
+bármelyik
+bármilyen
+egyfolytában
+engedély
+esély
+folyamatos
+folyik
+folytat
+folyton
+folyó
+golyó
+hely
+helyes
+helyette
+helyszín
+helytelen
+helyzet
+hülyeség
+ilyen
+ilyenkor
+ilyesmi
+ilyet
+király
+királynő
+komoly
+komolyan
+kölykök
+kölyök
+lyuk
+lyukas
+mely
+melyik
+milyen
+mély
+oly
+olyan
+olyasmi
+olyat
+osztály
+pisztoly
+pálya
+semmilyen
+szabály
+személy
+személyes
+súlyos
+tavaly
+ugyanolyan
+valamelyik
+valamilyen
+veszély
+veszélyes
+vészhelyzet
+`.trim().split('\n');
+const J_WORDS = `
+ajtó
+ajándék
+ajánlat
+akarjuk
+alapján
+aludj
+anyja
+baj
+bajom
+bejön
+bájos
+csaj
+egyfajta
+elején
+eljön
+ereje
+faj
+fajta
+fej
+fogjuk
+fáj
+férj
+fúj
+haj
+hajnal
+hajrá
+hajó
+héj
+ideje
+ifjú
+japán
+jel
+john
+jár
+jég
+jó
+kaja
+kifejezés
+lőj
+majdnem
+majom
+muszáj
+nyúlj
+olaj
+pajtás
+rájuk
+sajnos
+tagja
+tojás
+vajon
+éjszaka
+új
+`.trim().split('\n');
+start();
+</script>
