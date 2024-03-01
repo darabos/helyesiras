@@ -175,6 +175,10 @@ document.onkeypress = e => {
     if (e.code === 'KeyJ') push('J');
     if (e.code === 'KeyL') push('LY');
 }
+document.onkeydown = e => {
+    if (e.code === 'ArrowLeft') push('J');
+    if (e.code === 'ArrowRight') push('LY');
+}
 let touchstartX = 0;
 document.ontouchstart = e => {
     touchstartX = e.changedTouches[0].screenX;
