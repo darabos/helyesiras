@@ -121,11 +121,21 @@ function newBlock() {
         ws.push(...WS);
     }
     const i = Math.floor(Math.random() * ws.length)
-    const w = ws[i].toUpperCase();
+    let w = ws[i].toUpperCase();
     ws.splice(i, 1); // Delete w.
-    div.innerHTML = w.replace('LY', '<i>LY</i>').replace('J', '<i>LY</i>');
+    let g = w;
+    const HIDDEN = ['LLY', 'LY', 'JJ', 'J']
+    for (const k of HIDDEN) {
+        if (w.includes(k)) {
+            w = w.replace(k, '<i>LY</i>');
+            g = g.replace(k, `<i>${k}</i>`);
+            break;
+        }
+    }
+    div.innerHTML = w;
     game.appendChild(div);
     div.dataset.ly = ly.toString();
+    div.dataset.revealed = g;
     return div;
 }
 function push(dir) {
@@ -136,7 +146,7 @@ function push(dir) {
     const bw = game.getBoundingClientRect().width;
     if (b.dataset.ly === kly.toString()) {
         b.style.transform = `translateX(${kly?(bw-ww)/2:(ww-bw)/2}px)`;
-        if (!kly) b.innerHTML = b.innerHTML.replace('<i>LY</i>', '<i>J</i>');
+        b.innerHTML = b.dataset.revealed;
         b.classList.add('revealed');
         next += 1;
         points += 10;
@@ -181,10 +191,13 @@ ahelyett
 amely
 amelyik
 amilyen
+boly
 bolygó
 bármely
 bármelyik
 bármilyen
+csigolya
+dölyf
 egyfolytában
 engedély
 esély
@@ -193,18 +206,25 @@ folyik
 folytat
 folyton
 folyó
+gally
+gergely
 golyó
+gomolya
+harkály
 hely
 helyes
 helyette
 helyszín
 helytelen
 helyzet
+hólyag
 hülyeség
+ily
 ilyen
 ilyenkor
 ilyesmi
 ilyet
+károly
 király
 királynő
 komoly
@@ -217,17 +237,21 @@ mely
 melyik
 milyen
 mély
+moly
 oly
 olyan
 olyasmi
 olyat
 osztály
+ölyv
 pisztoly
 pálya
 semmilyen
+sirály
 szabály
 személy
 személyes
+súly
 súlyos
 tavaly
 ugyanolyan
@@ -239,6 +263,7 @@ vészhelyzet
 `.trim().split('\n');
 const J_WORDS = `
 ajtó
+ajak
 ajándék
 ajánlat
 akarjuk
@@ -246,6 +271,7 @@ alapján
 aludj
 anyja
 baj
+báj
 bajom
 bejön
 bájos
@@ -262,34 +288,52 @@ fáj
 férj
 fúj
 haj
+háj
 hajnal
 hajrá
 hajó
 héj
 ideje
 ifjú
+íj
 japán
 jel
 john
 jár
+jenő
 jég
 jó
+jónás
+joghurt
+júlia
 kaja
 kifejezés
+lajos
 lőj
 majdnem
 majom
+máj
 muszáj
 nyúlj
 olaj
 pajtás
+papagáj
 rájuk
 sajnos
+sajt
+száj
+szilaj
 tagja
+tej
+tejföl
+táj
 tojás
+tolvaj
+ujj
 vajon
 éjszaka
 új
+vaj
 `.trim().split('\n');
 start();
 </script>
