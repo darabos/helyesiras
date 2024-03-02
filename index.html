@@ -223,7 +223,7 @@ function push(dir) {
         } else {
             clearInterval(loss);
             try { soundEnd.play(); } catch (e) {}
-            player.style.removeProperty('transform');
+            animal.style.removeProperty('transform');
             animal.classList.add('bouncing');
             restart.scrollIntoView({behavior: 'smooth', block: 'nearest'});
         }
