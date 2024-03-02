@@ -216,7 +216,7 @@ function push(dir) {
         next += 1;
         points += 10;
         if (next < blocks.length) {
-            blocks[next].scrollIntoView({behavior: 'smooth', block: 'nearest'});
+            blocks[Math.min(blocks.length - 1, next + 1)].scrollIntoView({behavior: 'smooth', block: 'nearest'});
             const ph = player.getBoundingClientRect().height;
             player.style.top = (bRect.bottom + window.scrollY/ZOOM - ph) + 'px';
             try { soundGood.play(); } catch (e) {}
