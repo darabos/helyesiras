@@ -102,6 +102,12 @@
     .bouncing {
         animation: bounceUp 0.3s infinite;
     }
+    a {
+        color: #987;
+    }
+    .hint.bottom {
+        margin: 20px;
+    }
 </style>
 </head><body>
     <div class="hint">Nyomd a J és L gombokat, vagy húzd jobbra-balra az ujjad.</div>
@@ -109,7 +115,7 @@
     <div id="game"></div>
     <div id="score-display"><span id="score">0</span> pont</div>
     <button id="restart">ÚJRA</button>
-    <div class="hint">R gombbal újraindíthatod a játékot.</div>
+    <div class="hint bottom">R gombbal újraindíthatod a játékot. <a href="https://github.com/darabos/helyesiras/">GitHub</a></div>
     <div id="pet"></div>
     <audio id="soundGood" src="sounds/Coin3.ogg"></audio>
     <audio id="soundBad" src="sounds/Hit1.ogg"></audio>
