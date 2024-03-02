@@ -7,6 +7,7 @@
     body {
         font-family: sans-serif;
         text-align: center;
+        margin: 0 20px 20px 20px;
     }
     i {
         display: inline-block;
@@ -85,19 +86,23 @@
     #score-display {
         color: #987;
         text-align: center;
-        padding: 20px;
         font-size: 20px;
+        margin: 20px;
+    }
+    #restart {
+        margin-top: 20px;
     }
     .hint {
         color: #987;
         font-size: 10px;
+        margin: 10px;
     }
-    #pet {
+    #player {
         position: absolute;
-        top: 230px;
         left: 0; right: 0; margin: auto;
         font-size: 40px;
         visibility: hidden;
+        line-height: 1;
     }
     .bouncing {
         animation: bounceUp 0.3s infinite;
@@ -105,34 +110,42 @@
     a {
         color: #987;
     }
-    .hint.bottom {
-        margin: 20px;
+    input, label {
+        color: #987;
+        font-size: 10px;
+    }
+    input[type=range] {
+        zoom: 0.4;
     }
 </style>
 </head><body>
     <div class="hint">Nyomd a J és L gombokat, vagy húzd jobbra-balra az ujjad.</div>
     <div class="header"><div>J</div><div>LY</div></div><div>
     <div id="game"></div>
-    <div id="score-display"><span id="score">0</span> pont</div>
     <button id="restart">ÚJRA</button>
-    <div class="hint bottom">R gombbal újraindíthatod a játékot. <a href="https://github.com/darabos/helyesiras/">GitHub</a></div>
-    <div id="pet"></div>
+    <div class="hint">R gombbal újraindíthatod a játékot. <a href="https://github.com/darabos/helyesiras/">GitHub</a></div>
+    <label><input type="range" value="1" min="0" max="10" step="1" id="sebesseg"></input> Sebesség</label>
+    <div id="player">
+        <div id="score-display"><span id="score">0</span> pont</div>
+        <div id="animal"></div>
+    </div>
     <audio id="soundGood" src="sounds/Coin3.ogg"></audio>
     <audio id="soundBad" src="sounds/Hit1.ogg"></audio>
     <audio id="soundEnd" src="sounds/1up3.ogg"></audio>
 <script>
+sebesseg.value = parseInt(localStorage.getItem('sebesseg') || '1');
 const ZOOM = window.innerHeight > window.innerWidth ? 1 : 1.8;
 document.body.style.zoom = ZOOM;
-function getPets(){
+function getAnimals(){
     const s = '🐕🐶🐺🦊🐩🐈🐱🐆🐅🐯🦍🐒🐖🐷🐎🐴🐐🐏🐑🐗🦏🐘🐼🐨🐪🐫🐄🐮🐂🐻🐃🐇🐰🐿🐹🐭🐓🐔🐣🐤🦃🐦🕊🦅🦆🐧🐢🐙🦀🦐🦈🐬🐳🐋🐟🐠🐡🐍🐊🐛🐜🐝🐞🦋';
-    const pets = [];
+    const animals = [];
     // All wide characters.
     for (let i = 0; i < s.length; i += 2) {
-        pets.push(s.slice(i, i + 2));
+        animals.push(s.slice(i, i + 2));
     }
-    return pets;
+    return animals;
 }
-const PETS = getPets();
+const ANIMALS = getAnimals();
 const blocks = [];
 let next = 0;
 let points = 0;
@@ -142,12 +155,13 @@ function start() {
         const b = newBlock();
         blocks.push(b);
     }
-    pet.textContent = PETS[Math.floor(Math.random() * PETS.length)];
-    pet.style.visibility = 'hidden';
-    pet.classList.remove('bouncing');
+    animal.textContent = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+    player.style.visibility = 'hidden';
+    animal.classList.remove('bouncing');
     blocks[0].scrollIntoView({behavior: 'smooth', block: 'nearest'});
 }
 restart.onclick = () => {
+    points = 0;
     for (const b of blocks) {
         b.remove();
     }
@@ -193,24 +207,24 @@ function push(dir) {
     const bRect = b.getBoundingClientRect();
     const bw = bRect.width;
     const ww = game.getBoundingClientRect().width;
-    pet.style.transform = kly ? 'scaleX(-1)' : 'scaleX(1)';
+    animal.style.transform = kly ? 'scaleX(-1)' : 'scaleX(1)';
     if (b.dataset.ly === kly.toString()) {
         b.style.transform = `translateX(${kly?(ww-bw)/2:(bw-ww)/2}px)`;
         b.innerHTML = b.dataset.revealed;
         b.classList.add('revealed');
-        pet.style.visibility = 'visible';
+        player.style.visibility = 'visible';
         next += 1;
         points += 10;
         if (next < blocks.length) {
             blocks[next].scrollIntoView({behavior: 'smooth', block: 'nearest'});
-            const ph = pet.getBoundingClientRect().height;
-            pet.style.top = (bRect.bottom + window.scrollY/ZOOM - ph*0.9) + 'px';
+            const ph = player.getBoundingClientRect().height;
+            player.style.top = (bRect.bottom + window.scrollY/ZOOM - ph) + 'px';
             try { soundGood.play(); } catch (e) {}
         } else {
             clearInterval(loss);
             try { soundEnd.play(); } catch (e) {}
-            pet.style.removeProperty('transform');
-            pet.classList.add('bouncing');
+            player.style.removeProperty('transform');
+            animal.classList.add('bouncing');
             restart.scrollIntoView({behavior: 'smooth', block: 'nearest'});
         }
     } else {
@@ -220,16 +234,23 @@ function push(dir) {
         b.classList.add(cls);
         points -= 20;
         try { soundBad.play(); } catch (e) {}
+        document.body.style.backgroundColor = 'red';
+        setTimeout(() => document.body.style.backgroundColor = '', 100);
     }
     score.innerHTML = points;
-    if (!loss) {
-        loss = setInterval(lossFunc, 1000);
+    if (!loss & sebesseg.value > 0) {
+        loss = setInterval(lossFunc, 1000 / sebesseg.value);
     }
 };
 function lossFunc() {
     points -= 1;
     score.innerHTML = points;
 }
+sebesseg.onchange = () => {
+    clearInterval(loss);
+    loss = undefined;
+    localStorage.setItem('sebesseg', sebesseg.value);
+};
 document.onkeypress = e => {
     if (e.code === 'KeyJ') push('J');
     if (e.code === 'KeyL') push('LY');
@@ -310,7 +331,6 @@ gally
 gálya
 gereblye
 gerely
-gergely
 Gergely
 gólya
 golyó
@@ -327,7 +347,6 @@ harkály
 hely
 helyes
 helyesírás
-helyett
 helyette
 helyez
 helyezés
@@ -345,7 +364,6 @@ hópehely
 hülyeség
 hüvelyk
 ibolya
-Ibolya
 ily
 ilyen
 ilyenkor
@@ -353,7 +371,6 @@ ilyesmi
 ilyet
 ispotály
 kályha
-károly
 Károly
 kastély
 kedély
@@ -495,8 +512,7 @@ ejt
 ejtőernyő
 eleje
 eléje
-elején
-éljen!
+éljen
 eljön
 ereje
 erjesztőgomba
@@ -519,7 +535,7 @@ fejtett
 felejt
 férj
 fogjuk
-fojt
+fojtott
 földrajz
 föléje
 fúj
@@ -543,7 +559,6 @@ hajnal
 Hajnalka
 hajó
 hajrá
-hajrá!
 hajt
 hajtás
 háztáji
@@ -551,7 +566,6 @@ héj
 héja
 hónalj
 ideje
-idején
 időjárás
 ifjú
 íj
@@ -595,7 +609,7 @@ jókor
 jókora
 jólelkű
 jön
-jónás
+Jónás
 jósol
 jószág
 jövedelem
@@ -604,7 +618,7 @@ jubileum
 juh
 juhar
 juhász
-júlia
+Júlia
 július
 június
 jut
@@ -712,7 +726,6 @@ váj
 vájat
 vajda
 vajon
-vajon?
 valójában
 varjú
 verejték
