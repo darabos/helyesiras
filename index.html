@@ -109,11 +109,14 @@
     <div id="game"></div>
     <div id="score-display"><span id="score">0</span> pont</div>
     <button id="restart">ÚJRA</button>
-    <div id="pet" class="bouncing"></div>
+    <div class="hint">R gombbal újraindíthatod a játékot.</div>
+    <div id="pet"></div>
     <audio id="soundGood" src="sounds/Coin3.ogg"></audio>
     <audio id="soundBad" src="sounds/Hit1.ogg"></audio>
     <audio id="soundEnd" src="sounds/1up3.ogg"></audio>
 <script>
+const ZOOM = window.innerHeight > window.innerWidth ? 1 : 1.8;
+document.body.style.zoom = ZOOM;
 function getPets(){
     const s = '🐕🐶🐺🦊🐩🐈🐱🐆🐅🐯🦍🐒🐖🐷🐎🐴🐐🐏🐑🐗🦏🐘🐼🐨🐪🐫🐄🐮🐂🐻🐃🐇🐰🐿🐹🐭🐓🐔🐣🐤🦃🐦🕊🦅🦆🐧🐢🐙🦀🦐🦈🐬🐳🐋🐟🐠🐡🐍🐊🐛🐜🐝🐞🦋';
     const pets = [];
@@ -190,17 +193,19 @@ function push(dir) {
         b.innerHTML = b.dataset.revealed;
         b.classList.add('revealed');
         pet.style.visibility = 'visible';
-        pet.style.top = (bRect.top + window.scrollY - 20) + 'px';
         next += 1;
         points += 10;
         if (next < blocks.length) {
             blocks[next].scrollIntoView({behavior: 'smooth', block: 'nearest'});
+            const ph = pet.getBoundingClientRect().height;
+            pet.style.top = (bRect.bottom + window.scrollY/ZOOM - ph*0.9) + 'px';
             try { soundGood.play(); } catch (e) {}
         } else {
             clearInterval(loss);
             try { soundEnd.play(); } catch (e) {}
             pet.style.removeProperty('transform');
             pet.classList.add('bouncing');
+            restart.scrollIntoView({behavior: 'smooth', block: 'nearest'});
         }
     } else {
         const cls = kly ? 'bounce-left' : 'bounce-right';
